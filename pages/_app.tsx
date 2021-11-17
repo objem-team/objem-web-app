@@ -21,9 +21,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   const theme = createTheme(themeOptions);
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline>
-        <Component {...pageProps} />
-      </CssBaseline>
+      <CssBaseline />
+      <Component {...pageProps} />
     </ThemeProvider>
   );
 }
