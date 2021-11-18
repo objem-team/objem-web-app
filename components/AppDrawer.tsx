@@ -13,10 +13,16 @@ import {
 
 const AppDrawer: React.VFC<DrawerProps> = (props) => {
   return (
-    <Drawer anchor="left" open={props.open} onClose={props.onClose}>
+    <Drawer open={props.open} onClose={props.onClose}>
       <List>
         {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem button key={text}>
+          <ListItem
+            button
+            key={text}
+            sx={{
+              width: "15vw",
+            }}
+          >
             <ListItemIcon>
               {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
             </ListItemIcon>
