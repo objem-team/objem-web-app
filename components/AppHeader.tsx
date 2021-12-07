@@ -6,11 +6,11 @@ import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
 
 const AppHeader: React.VFC = () => {
   const [open, setOpen] = React.useState(false);
-  const toggleDrawer = (open: boolean) => (event: React.MouseEvent) => {
+  const toggleDrawer = (open: boolean) => (_: React.MouseEvent) => {
     setOpen(open);
   };
   return (
-    <AppBar position="fixed" color="primary" sx={{ top: "auto" }}>
+    <AppBar position="static" color="primary" sx={{ top: "auto" }}>
       <AppDrawer open={open} onClose={toggleDrawer(false)} />
       <Toolbar>
         <IconButton
