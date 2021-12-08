@@ -9,24 +9,23 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
 const AppDrawer: React.VFC<DrawerProps> = (props) => {
-  const [widgetalignment, setWidgetAlignment] = React.useState("unlock");
-  const [alignment, setAlignment] = React.useState("light");
+  const [isLock, setIsLock] = React.useState<Boolean>(true);
+  const [theme, setTheme] = React.useState("light");
 
-  const widgetHandleChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newAlignment: string
+  const widgetLockHandle = (
+    _event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
   ) => {
-    if (newAlignment !== null) {
-      setWidgetAlignment(newAlignment);
-    }
+    //todo ウィジェットのロックアンロック
+    setIsLock(checked);
   };
-
-  const themeHandleChange = (
+  const themeChangeHandle = (
     event: React.MouseEvent<HTMLElement>,
     newAlignment: string
   ) => {
+    //todo ダークテーマとライトテーマの適応
     if (newAlignment !== null) {
-      setAlignment(newAlignment);
+      setTheme(newAlignment);
     }
   };
 
@@ -34,16 +33,16 @@ const AppDrawer: React.VFC<DrawerProps> = (props) => {
     <Drawer open={props.open} onClose={props.onClose}>
       <List sx={{ mx: 3, mt: 1 }}>
         <label>ウィジェットのロック</label>
-        <Switch sx={{ ml: 4 }} />
+        <Switch sx={{ ml: 4 }} onChange={widgetLockHandle} />
       </List>
 
       <List sx={{ mx: 3 }}>
         <label>テーマ</label>
         <ToggleButtonGroup
           color="primary"
-          value={alignment}
+          value={theme}
           exclusive
-          onChange={themeHandleChange}
+          onChange={themeChangeHandle}
           size="small"
           fullWidth
         >

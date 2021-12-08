@@ -1,12 +1,12 @@
-import { Add } from "@material-ui/icons";
 import React from "react";
 import AppDrawer from "../components/AppDrawer";
+import AddIcon from "@mui/icons-material/Add";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
 
 const AppHeader: React.VFC = () => {
   const [open, setOpen] = React.useState(false);
-  const toggleDrawer = (open: boolean) => (event: React.MouseEvent) => {
+  const toggleDrawer = (open: boolean) => (_event: React.MouseEvent) => {
     setOpen(open);
   };
   return (
@@ -26,7 +26,7 @@ const AppHeader: React.VFC = () => {
         <Box sx={{ flexGrow: 1 }} />
 
         <IconButton color="inherit">
-          <Add />
+          <AddIcon />
         </IconButton>
       </Toolbar>
     </AppBar>
