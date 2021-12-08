@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import * as React from "react";
+import ws from "../src/websocket";
 import CropFreeIcon from "@mui/icons-material/CropFree";
 import {
   Paper,
@@ -13,7 +14,14 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
+const isBrowser = typeof window !== "undefined";
+
 const Home: NextPage = () => {
+  React.useEffect(() => {
+    if (isBrowser) {
+      ws.getInstance();
+    }
+  }, []);
   return (
     <Box
       sx={{
