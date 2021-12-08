@@ -1,7 +1,7 @@
+import { Add } from "@material-ui/icons";
 import React from "react";
 import AppDrawer from "../components/AppDrawer";
 import MenuIcon from "@mui/icons-material/Menu";
-import MoreIcon from "@mui/icons-material/MoreVert";
 import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
 
 const AppHeader: React.VFC = () => {
@@ -24,8 +24,9 @@ const AppHeader: React.VFC = () => {
           Objem
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
+
         <IconButton color="inherit">
-          <MoreIcon />
+          <Add />
         </IconButton>
       </Toolbar>
     </AppBar>
