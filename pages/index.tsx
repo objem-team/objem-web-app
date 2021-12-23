@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import * as React from "react";
+import QrReader from "../components/QrReader";
 import CropFreeIcon from "@mui/icons-material/CropFree";
 import {
   Paper,
@@ -11,9 +12,31 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
 import Typography from "@mui/material/Typography";
 
 const Home: NextPage = () => {
+  const [open, setOpen] = React.useState(false);
+  const [ipaddress, setIpaddress] = React.useState("");
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const onChange: React.ChangeEventHandler<
+    HTMLTextAreaElement | HTMLInputElement
+  > = (event) => {
+    setIpaddress(event.target.value);
+  };
+
+  const onQRread = (result: string) => {
+    setOpen(false);
+    setIpaddress(result);
+  };
+
   return (
     <Box
       sx={{
@@ -32,7 +55,7 @@ const Home: NextPage = () => {
           minWidth: "300px",
           padding: 4,
         }}
-        elevation={4}
+        elevation={10}
       >
         <Typography component="h1" variant="h5">
           Connect
@@ -41,11 +64,14 @@ const Home: NextPage = () => {
           <FormControl sx={{ width: "100%" }} variant="outlined">
             <InputLabel>ip address</InputLabel>
             <OutlinedInput
+              value={ipaddress}
+              onChange={onChange}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
-                    aria-label="toggle password visibility"
+                    aria-label="ReadQR"
                     edge="end"
+                    onClick={handleClickOpen}
                   >
                     <CropFreeIcon />
                   </IconButton>
@@ -63,6 +89,24 @@ const Home: NextPage = () => {
             Connect
           </Button>
         </Box>
+        <Paper elevation={10} />
+        <Dialog open={open} onClose={handleClose} fullWidth>
+          <Paper
+            sx={{ padding: "10px", display: "flex", flexDirection: "column" }}
+          >
+            <Typography component="h1" variant="h5" sx={{ paddingY: "5px" }}>
+              QRCodeReader
+            </Typography>
+            <QrReader callback={onQRread} />
+            <Button
+              onClick={handleClose}
+              variant="contained"
+              sx={{ marginTop: "10px" }}
+            >
+              cancel
+            </Button>
+          </Paper>
+        </Dialog>
       </Paper>
     </Box>
   );
