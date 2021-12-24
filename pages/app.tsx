@@ -1,5 +1,6 @@
 import React from "react";
 import AppHeader from "../components/AppHeader";
+import FeatureMixer from "../components/FeatureMixer";
 import SpotifyWidget from "../components/SpotifyWidget";
 
 const app = () => {
@@ -7,6 +8,7 @@ const app = () => {
     <div>
       <AppHeader />
       <SpotifyWidget />
+      <FeatureMixer />
     </div>
   );
 };
