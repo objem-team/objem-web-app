@@ -9,16 +9,17 @@ interface BorderedAvaterProps extends AvatarProps {
 }
 
 const BorderedAvater: React.VFC<BorderedAvaterProps> = (props) => {
+  const { size, borderColor, borderStyle, isActive, ...rest } = props;
   return (
     <Avatar
-      {...props}
+      {...rest}
       sx={{
-        width: props.size || 45,
-        height: props.size || 45,
-        borderColor: props.isActive ? props.borderColor : "",
-        borderStyle: props.borderStyle || "solid",
-        borderWidth: props.size ? props.size / 15 + "px" : "3px",
-        ...props.sx,
+        width: size || 45,
+        height: size || 45,
+        borderColor: isActive ? borderColor : "",
+        borderStyle: borderStyle || "solid",
+        borderWidth: size ? size / 15 + "px" : "3px",
+        ...rest.sx,
       }}
     />
   );
