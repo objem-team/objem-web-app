@@ -1,5 +1,5 @@
 type VolumeSession = {
-  id: int;
+  processId: int;
   name: string;
   icon: string; //base64string
   volume: float;
