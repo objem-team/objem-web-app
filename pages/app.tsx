@@ -1,14 +1,14 @@
 import React from "react";
 import AppHeader from "../components/AppHeader";
-import FeatureMixer from "../components/FeatureMixer";
 import SpotifyWidget from "../components/SpotifyWidget";
+import VolumeMixer from "../components/VolumeMixer";
 
 const app = () => {
   return (
     <div>
       <AppHeader />
       <SpotifyWidget />
-      <FeatureMixer />
+      <VolumeMixer />
     </div>
   );
 };
