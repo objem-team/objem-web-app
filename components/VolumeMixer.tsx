@@ -35,18 +35,16 @@ const VolumeMixer: React.VFC = () => {
 
   useEffect(() => {
     const connection = ws.getInstance().connection;
-    connection.addEventListener("open", () => {
-      console.log("connected");
-      const requset: WebsocketMessage = {
-        eventName: "requestSession",
-        data: "this is sessionRequest",
-      };
-      connection.send(JSON.stringify(requset));
-    });
     connection.addEventListener("message", onMassage);
+    if (connection.readyState > 0) {
+      requestSession();
+    } else {
+      connection.addEventListener("open", requestSession);
+    }
     setSelectedIndex(0);
     return () => {
       connection.removeEventListener("message", onMassage);
+      connection.removeEventListener("open", requestSession);
     };
   }, []);
 
@@ -65,6 +63,15 @@ const VolumeMixer: React.VFC = () => {
     const volume = selected ? selected.session.volume : 0;
     setVolume(volume);
   }, [selectedIndex]);
+
+  const requestSession = () => {
+    const connection = ws.getInstance().connection;
+    const requset: WebsocketMessage = {
+      eventName: "requestSession",
+      data: "this is sessionRequest",
+    };
+    connection.send(JSON.stringify(requset));
+  };
 
   const onMassage = (event: MessageEvent) => {
     const data = JSON.parse(event.data) as WebsocketMessage;
@@ -160,9 +167,8 @@ const VolumeMixer: React.VFC = () => {
     <Paper>
       <Button
         onClick={() => {
-          console.log(selectedIndexRef.current);
-          console.log(selectedIndex);
-          console.log(sessionState);
+          const connection = ws.getInstance().connection;
+          console.log(connection);
         }}
       >
         123
