@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { VolumeSession } from "../src/type/VolumeSession";
 import { WebsocketMessage } from "../src/type/WebsocketMessage";
+import { NewVolumeMessage } from "../src/type/WebsocketMessage/NewVolumeMessage";
 import { SetVolumeMessage } from "../src/type/WebsocketMessage/SetVolumeMessage";
 import { websocket as ws } from "../src/websocket";
 import BorderedAvater from "./BorderedAvater";
@@ -15,19 +16,24 @@ type VolumeMixerState = {
   session: VolumeSession;
   isActive: boolean;
 };
+
 const VolumeMixer: React.VFC = () => {
   const [sessionState, setSessionState] = useState<VolumeMixerState[]>([]);
   const [selectedSession, setSelectedSession] = useState<Number>(
     Number.NEGATIVE_INFINITY
   );
+  const [isGrabbed, setIsGrabbed] = useState<boolean>(false);
+  const isGrabbedRef = React.useRef<boolean>(false);
+  isGrabbedRef.current = isGrabbed;
+
+  const selectedSessionRef = React.useRef<Number>(Number.NEGATIVE_INFINITY);
+  selectedSessionRef.current = selectedSession;
+
   const [volume, setVolume] = useState(0);
   const btnStyle = "#2196f3";
 
   useEffect(() => {
     setSelectedSession(0);
-  }, []);
-
-  useEffect(() => {
     const connection = ws.getInstance().connection;
     connection.addEventListener("open", () => {
       console.log("connected");
@@ -38,7 +44,12 @@ const VolumeMixer: React.VFC = () => {
       connection.send(JSON.stringify(requset));
     });
     connection.addEventListener("message", onMassage);
+    return () => {
+      connection.removeEventListener("message", onMassage);
+    };
+  }, []);
 
+  useEffect(() => {
     setSessionState((prev) =>
       prev.map((session) => ({
         ...session,
@@ -46,14 +57,10 @@ const VolumeMixer: React.VFC = () => {
       }))
     );
     const session = sessionState.find(
-      (state) => state.session.processId == selectedSession
+      (state) => state.session.processId === selectedSession
     );
     const volume = session ? session.session.volume : 0.5;
     setVolume(volume);
-
-    return () => {
-      connection.removeEventListener("message", onMassage);
-    };
   }, [selectedSession]);
 
   const onMassage = (event: MessageEvent) => {
@@ -63,53 +70,72 @@ const VolumeMixer: React.VFC = () => {
         const sessions = data.data as VolumeSession[];
         setSessionState(
           sessions.map((session) => {
-            if (session.processId === selectedSession) {
+            if (session.processId === selectedSessionRef.current) {
               setVolume(session.volume as number);
             }
             return {
               session,
-              isActive: session.processId === selectedSession,
+              isActive: session.processId === selectedSessionRef.current,
             };
           })
         );
         break;
-      case "volume":
-        console.log("volume");
+      case "newvolume":
+        if (isGrabbedRef.current) return;
+        const newvolume = data.data as NewVolumeMessage;
+        setSessionState((prev) => {
+          const session = prev.find(
+            (state) => state.session.processId === newvolume.processId
+          );
+          if (session) {
+            session.session.volume = newvolume.volume;
+          }
+          return prev;
+        });
+        if (newvolume.processId === selectedSessionRef.current) {
+          setVolume(newvolume.volume);
+        }
         break;
     }
   };
 
   const handleChange = (event: Event, value: number | number[]) => {
-    console.log("onchange");
-    console.log(value);
+    setIsGrabbed(true);
     setVolume(value as number);
 
-    setSessionState((prev) =>
-      prev.map((session) => {
-        if (session.session.processId === selectedSession) {
-          session.session.volume = value;
-          const connection = ws.getInstance().connection;
-          const data: SetVolumeMessage = {
-            processId: session.session.processId,
-            volume: value as number,
-          };
-          const requset: WebsocketMessage = {
-            eventName: "setVolume",
-            data: data,
-          };
-          connection.send(JSON.stringify(requset));
+    const connection = ws.getInstance().connection;
+    const data: SetVolumeMessage = {
+      processId: selectedSessionRef.current,
+      volume: value as number,
+    };
+    const requset: WebsocketMessage = {
+      eventName: "setVolume",
+      data: data,
+    };
+    connection.send(JSON.stringify(requset));
+  };
+  const handleChangeCommitted = (
+    event: React.SyntheticEvent | Event,
+    value: number | number[]
+  ) => {
+    setSessionState((prev) => {
+      return prev.map((session) => {
+        if (session.session.processId === selectedSessionRef.current) {
+          session.session.volume = value as number;
         }
         return session;
-      })
-    );
+      });
+    });
+    setIsGrabbed(false);
   };
 
   return (
     <Paper>
       <Button
         onClick={() => {
-          console.log(volume);
-          console.log("selected : " + selectedSession);
+          console.log(selectedSessionRef.current);
+          console.log(selectedSession);
+          console.log(sessionState);
         }}
       >
         123
@@ -123,6 +149,7 @@ const VolumeMixer: React.VFC = () => {
               }}
             >
               <BorderedAvater
+                isMuted={state.session.isMuted}
                 isActive={state.isActive}
                 borderColor={btnStyle}
                 alt={state.session.name}
@@ -142,6 +169,7 @@ const VolumeMixer: React.VFC = () => {
           step={0.0001}
           value={volume}
           onChange={handleChange}
+          onChangeCommitted={handleChangeCommitted}
         />
         <VolumeUp />
       </Stack>
