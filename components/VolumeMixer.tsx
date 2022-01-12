@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { VolumeSession } from "../src/type/VolumeSession";
 import { WebsocketMessage } from "../src/type/WebsocketMessage";
 import { NewVolumeMessage } from "../src/type/WebsocketMessage/NewVolumeMessage";
@@ -19,21 +19,21 @@ type VolumeMixerState = {
 
 const VolumeMixer: React.VFC = () => {
   const [sessionState, setSessionState] = useState<VolumeMixerState[]>([]);
-  const [selectedSession, setSelectedSession] = useState<Number>(
-    Number.NEGATIVE_INFINITY
-  );
-  const [isGrabbed, setIsGrabbed] = useState<boolean>(false);
-  const isGrabbedRef = React.useRef<boolean>(false);
-  isGrabbedRef.current = isGrabbed;
+  const sessionStateRef = useRef<VolumeMixerState[]>([]);
+  sessionStateRef.current = sessionState;
 
-  const selectedSessionRef = React.useRef<Number>(Number.NEGATIVE_INFINITY);
-  selectedSessionRef.current = selectedSession;
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const selectedIndexRef = useRef<number>(0);
+  selectedIndexRef.current = selectedIndex;
+
+  const [isGrabbed, setIsGrabbed] = useState<boolean>(false);
+  const isGrabbedRef = useRef<boolean>(false);
+  isGrabbedRef.current = isGrabbed;
 
   const [volume, setVolume] = useState(0);
   const btnStyle = "#2196f3";
 
   useEffect(() => {
-    setSelectedSession(0);
     const connection = ws.getInstance().connection;
     connection.addEventListener("open", () => {
       console.log("connected");
@@ -44,55 +44,63 @@ const VolumeMixer: React.VFC = () => {
       connection.send(JSON.stringify(requset));
     });
     connection.addEventListener("message", onMassage);
+    setSelectedIndex(0);
     return () => {
       connection.removeEventListener("message", onMassage);
     };
   }, []);
 
   useEffect(() => {
-    setSessionState((prev) =>
-      prev.map((session) => ({
-        ...session,
-        isActive: session.session.processId === selectedSession,
-      }))
-    );
-    const session = sessionState.find(
-      (state) => state.session.processId === selectedSession
-    );
-    const volume = session ? session.session.volume : 0.5;
+    setSessionState((prev) => {
+      if (!prev.length) return prev;
+      const newState = prev.map((state, index) => {
+        return {
+          session: state.session,
+          isActive: index === selectedIndex,
+        };
+      });
+      return newState;
+    });
+    const selected = sessionState[selectedIndex];
+    const volume = selected ? selected.session.volume : 0;
     setVolume(volume);
-  }, [selectedSession]);
+  }, [selectedIndex]);
 
   const onMassage = (event: MessageEvent) => {
     const data = JSON.parse(event.data) as WebsocketMessage;
     switch (data.eventName) {
       case "session":
         const sessions = data.data as VolumeSession[];
-        setSessionState(
-          sessions.map((session) => {
-            if (session.processId === selectedSessionRef.current) {
-              setVolume(session.volume as number);
-            }
-            return {
-              session,
-              isActive: session.processId === selectedSessionRef.current,
-            };
-          })
-        );
+        const newSession = sessions.map((session, index) => {
+          if (index === selectedIndexRef.current) {
+            setVolume(session.volume as number);
+          } else if (index < selectedIndexRef.current) {
+            setSelectedIndex(0);
+          }
+          return {
+            session,
+            isActive: index === selectedIndexRef.current,
+          };
+        });
+        setSessionState(newSession);
         break;
       case "newvolume":
+        //stateを更新する
         if (isGrabbedRef.current) return;
         const newvolume = data.data as NewVolumeMessage;
-        setSessionState((prev) => {
-          const session = prev.find(
-            (state) => state.session.processId === newvolume.processId
-          );
-          if (session) {
-            session.session.volume = newvolume.volume;
-          }
-          return prev;
-        });
-        if (newvolume.processId === selectedSessionRef.current) {
+        setSessionState((prev) =>
+          prev.map((session) => {
+            if (session.session.processId === newvolume.processId) {
+              session.session.volume = newvolume.volume;
+              session.session.isMuted = newvolume.isMuted;
+            }
+            return session;
+          })
+        );
+        if (
+          newvolume.processId ===
+          sessionStateRef.current[selectedIndexRef.current].session.processId
+        ) {
           setVolume(newvolume.volume);
         }
         break;
@@ -105,8 +113,9 @@ const VolumeMixer: React.VFC = () => {
 
     const connection = ws.getInstance().connection;
     const data: SetVolumeMessage = {
-      processId: selectedSessionRef.current,
+      processId: sessionState[selectedIndex].session.processId,
       volume: value as number,
+      isMuted: sessionState[selectedIndex].session.isMuted,
     };
     const requset: WebsocketMessage = {
       eventName: "setVolume",
@@ -120,7 +129,7 @@ const VolumeMixer: React.VFC = () => {
   ) => {
     setSessionState((prev) => {
       return prev.map((session) => {
-        if (session.session.processId === selectedSessionRef.current) {
+        if (session.session.processId === selectedIndexRef.current) {
           session.session.volume = value as number;
         }
         return session;
@@ -129,23 +138,41 @@ const VolumeMixer: React.VFC = () => {
     setIsGrabbed(false);
   };
 
+  const onClick = (index: number) => {
+    if (selectedIndexRef.current === index) {
+      const data: SetVolumeMessage = {
+        processId: sessionState[selectedIndex].session.processId,
+        volume: sessionState[selectedIndex].session.volume,
+        isMuted: !sessionState[selectedIndex].session.isMuted,
+      };
+      const requset: WebsocketMessage = {
+        eventName: "setVolume",
+        data: data,
+      };
+
+      const connection = ws.getInstance().connection;
+      connection.send(JSON.stringify(requset));
+    }
+    setSelectedIndex(index);
+  };
+
   return (
     <Paper>
       <Button
         onClick={() => {
-          console.log(selectedSessionRef.current);
-          console.log(selectedSession);
+          console.log(selectedIndexRef.current);
+          console.log(selectedIndex);
           console.log(sessionState);
         }}
       >
         123
       </Button>
       <Grid container spacing={2}>
-        {sessionState.map((state) => (
+        {sessionState.map((state, index) => (
           <Grid item xs={3} sm={3} md={2} lg={2} key={state.session.processId}>
             <IconButton
               onClick={() => {
-                setSelectedSession(state.session.processId);
+                onClick(index);
               }}
             >
               <BorderedAvater
