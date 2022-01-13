@@ -3,11 +3,10 @@ import React, { useState } from "react";
 if (typeof window != "undefined") {
   var ReactQrReader = require("react-qr-reader");
 }
-type CallBackFunc = (_qrResult: string) => void;
-type Props = {
-  callback: CallBackFunc;
+type QrReaderProps = {
+  callback: (_qrResult: string) => void;
 };
-const QrReader: React.VFC<Props> = (props) => {
+const QrReader: React.VFC<QrReaderProps> = (props) => {
   const [data, setData] = useState(null);
 
   const handleScan = (result: any) => {
