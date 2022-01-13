@@ -167,8 +167,7 @@ const VolumeMixer: React.VFC = () => {
     <Paper>
       <Button
         onClick={() => {
-          const connection = ws.getInstance().connection;
-          console.log(connection);
+          console.log(sessionState);
         }}
       >
         123

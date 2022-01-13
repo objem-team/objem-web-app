@@ -20,6 +20,18 @@ class websocket {
   private onOpen = (_event: Event) => {
     console.log("connected!");
   };
+
+  public static init(address: string, port: number) {
+    this.instance = new websocket("ws:" + address + ":" + port + "/");
+  }
+
+  public static reconect() {
+    if (this.instance) {
+      this.instance.connection.close();
+    }
+    console.log("ws:" + this.address + ":" + this.port + "/");
+    this.instance = new websocket("ws:" + this.address + ":" + this.port + "/");
+  }
 }
 
 export { websocket };

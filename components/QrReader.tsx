@@ -4,7 +4,7 @@ if (typeof window != "undefined") {
   var ReactQrReader = require("react-qr-reader");
 }
 type QrReaderProps = {
-  callback: (_qrResult: string) => void;
+  onRead: (_qrResult: string) => void;
 };
 const QrReader: React.VFC<QrReaderProps> = (props) => {
   const [data, setData] = useState(null);
@@ -15,7 +15,7 @@ const QrReader: React.VFC<QrReaderProps> = (props) => {
     let Ip = result;
     console.log("Ip:" + Ip);
     if (!result.match(/^\d{1,3}(\.\d{1,3}){3}$/)) return;
-    props.callback(result);
+    props.onRead(result);
   };
 
   const handleError = (err: any) => {
