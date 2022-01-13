@@ -3,7 +3,7 @@ import AppHeader from "../components/AppHeader";
 import SpotifyWidget from "../components/SpotifyWidget";
 import VolumeMixer from "../components/VolumeMixer";
 
-const app = () => {
+const Application: React.VFC = () => {
   return (
     <div>
       <AppHeader />
@@ -12,5 +12,4 @@ const app = () => {
     </div>
   );
 };
-
-export default app;
+export default Application;
