@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   const [alartType, setArartType] = React.useState<AlertColor>("success");
   const [alartOpen, setAlartOpen] = React.useState(false);
   const [alartMessage, setAlartMessage] = React.useState("");
-  const handleClose = (e: Event, reason: string) => {
+  const handleClose = (reason: string) => {
     if (reason === "backdropClick") return;
     setOpen(false);
   };
@@ -37,28 +37,26 @@ const Home: NextPage = () => {
   const tryConnect = async () => {
     const reconectTimes = 5;
     let flag = false;
-    for (let i = 1; i <= reconectTimes; ++i) {
+    for (let i = 0; i < reconectTimes; ++i) {
       if (flag) break;
+      await sleep(1000 * 2 ** i);
       console.log(
         "Attempting to connect " + (reconectTimes - i) + " times remaining"
       );
-      connect()
-        .then(() => {
-          console.log("connected");
-          setConnecting(false);
-          setKey(Math.random());
-          setOpen(false);
-          flag = true;
-        })
-        .catch((_) => {
-          console.log("connect failed");
-        });
-      await sleep(1000 * 2 ** i);
+      connect().then((connection) => {
+        console.log("connected");
+        setConnecting(false);
+        setKey(Math.random());
+        setOpen(false);
+        flag = true;
+        const socket = connection as WebSocket;
+        socket.onopen = onError;
+      });
     }
     if (flag) return;
     setConnecting(false);
     setArartType("error");
-    setAlartMessage("Cannot connect to server");
+    setAlartMessage("Cannot connect to ");
     setAlartOpen(true);
     setOpen(true);
   };
@@ -67,8 +65,8 @@ const Home: NextPage = () => {
     return new Promise((resolve, reject) => {
       ws.reconect();
       const connection = ws.getInstance().connection;
-      connection.onopen = (e) => {
-        resolve(e);
+      connection.onopen = () => {
+        resolve(connection);
       };
       connection.onerror = (e) => {
         reject(e);
@@ -78,21 +76,11 @@ const Home: NextPage = () => {
 
   // eslint-disable-next-line unused-imports/no-unused-vars
   const onError = (_e: Event) => {
-    console.log("call error");
-    for (let i = 0; i < 5; i++) {
-      const connection = ws.getInstance().connection;
-      ws.reconect();
-      sleep(1000 * 2 ** i).then(() => {
-        handleClick(connection.url);
-      });
-    }
-    setOpen(true);
+    console.log("eeeee");
+    tryConnect();
   };
 
-  const handleAlartClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
+  const handleAlartClose = (reason?: string) => {
     if (reason === "clickaway") {
       return;
     }

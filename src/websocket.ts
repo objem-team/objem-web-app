@@ -22,15 +22,16 @@ class websocket {
   };
 
   public static init(address: string, port: number) {
-    this.instance = new websocket("ws:" + address + ":" + port + "/");
+    this.instance = new websocket("wss:" + address + ":" + port + "/");
   }
 
   public static reconect() {
     if (this.instance) {
       this.instance.connection.close();
     }
-    console.log("ws:" + this.address + ":" + this.port + "/");
-    this.instance = new websocket("ws:" + this.address + ":" + this.port + "/");
+    this.instance = new websocket(
+      "wss:" + this.address + ":" + this.port + "/"
+    );
   }
 }
 
