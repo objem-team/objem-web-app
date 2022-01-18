@@ -2,11 +2,11 @@ import * as React from "react";
 import { Paper } from "@mui/material";
 import Box from "@mui/material/Box";
 
-type YouTubeCommentWidgetProps = {
+type TwitchCommentWidgetProps = {
   videoId: string;
 };
 
-const YouTubeCommentWidget: React.VFC<YouTubeCommentWidgetProps> = (props) => {
+const TwitchCommentWidget: React.VFC<TwitchCommentWidgetProps> = (props) => {
   return (
     <Paper
       elevation={10}
@@ -27,9 +27,9 @@ const YouTubeCommentWidget: React.VFC<YouTubeCommentWidgetProps> = (props) => {
       >
         <iframe
           src={
-            "https://www.youtube.com/live_chat?v=" +
+            "https://www.twitch.tv/embed/" +
             props.videoId +
-            "&embed_domain=localhost"
+            "/chat?parent=localhost"
           }
           height="500"
           width="350"
@@ -57,4 +57,4 @@ const YouTubeCommentWidget: React.VFC<YouTubeCommentWidgetProps> = (props) => {
 </iframe> 
 */
 
-export default YouTubeCommentWidget;
+export default TwitchCommentWidget;
