@@ -61,14 +61,14 @@ const SpotifyWidget: React.VFC = () => {
                 wordBreak: "break-word",
               }}
             >
-              non player girl - nyankobrk 2p ver.
+              夜に駆ける
             </Typography>
             <Typography
               variant="subtitle1"
               color="text.secondary"
               component="div"
             >
-              somunia
+              YOASOBI
             </Typography>
           </CardContent>
           <CardMedia
@@ -80,7 +80,7 @@ const SpotifyWidget: React.VFC = () => {
               padding: "8px",
               objectFit: "scale-down",
             }}
-            image="https://i.scdn.co/image/ab67616d0000b273652f35100baaf5183a74b03d"
+            image="https://i.scdn.co/image/ab67616d0000b273c5716278abba6a103ad13aa7"
             alt="Live from space album cover"
           />
         </Box>

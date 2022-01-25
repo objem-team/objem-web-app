@@ -12,7 +12,7 @@ class websocket {
   static getInstance(): websocket {
     if (!this.instance) {
       this.instance = new websocket(
-        "ws:" + this.address + ":" + this.port + "/"
+        "wss:" + this.address + ":" + this.port + "/"
       );
     }
     return websocket.instance;

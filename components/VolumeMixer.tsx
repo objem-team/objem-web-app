@@ -135,8 +135,8 @@ const VolumeMixer: React.VFC = () => {
     value: number | number[]
   ) => {
     setSessionState((prev) => {
-      return prev.map((session) => {
-        if (session.session.processId === selectedIndexRef.current) {
+      return prev.map((session, index) => {
+        if (index === selectedIndexRef.current) {
           session.session.volume = value as number;
         }
         return session;
