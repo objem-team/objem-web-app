@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import { Box } from "@mui/system";
+
 type ConnectionDialogProps = {
   callback: (_address: string) => void;
   connecting: boolean;
@@ -54,15 +55,22 @@ const ConnectionDialog: React.VFC<ConnectionDialogProps> = (props) => {
       <Typography component="h1" variant="h5">
         Connect
       </Typography>
-      <Box component="form" noValidate sx={{ mt: 1 }}>
+      <Box sx={{ mt: 1 }}>
         <FormControl sx={{ width: "100%" }} variant="outlined">
           <InputLabel>ip address</InputLabel>
           <OutlinedInput
-            onChange={onChange}
             value={address}
+            onChange={onChange}
+            onKeyDown={(e) => {
+              if (e.key == "Enter") {
+                e.currentTarget.blur();
+                props.callback(address);
+              }
+            }}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
+                  disabled={props.connecting}
                   aria-label="toggle password visibility"
                   edge="end"
                   onClick={handleClickOpen}
