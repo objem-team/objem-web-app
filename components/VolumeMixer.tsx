@@ -51,13 +51,12 @@ const VolumeMixer: React.VFC = () => {
   useEffect(() => {
     setSessionState((prev) => {
       if (!prev.length) return prev;
-      const newState = prev.map((state, index) => {
+      return prev.map((state, index) => {
         return {
           session: state.session,
           isActive: index === selectedIndex,
         };
       });
-      return newState;
     });
     const selected = sessionState[selectedIndex];
     const volume = selected ? selected.session.volume : 0;
@@ -66,11 +65,11 @@ const VolumeMixer: React.VFC = () => {
 
   const requestSession = () => {
     const connection = ws.getInstance().connection;
-    const requset: WebsocketMessage = {
+    const request: WebsocketMessage = {
       eventName: "requestSession",
       data: "this is sessionRequest",
     };
-    connection.send(JSON.stringify(requset));
+    connection.send(JSON.stringify(request));
   };
 
   const onMassage = (event: MessageEvent) => {
@@ -94,21 +93,21 @@ const VolumeMixer: React.VFC = () => {
       case "newvolume":
         //stateを更新する
         if (isGrabbedRef.current) return;
-        const newvolume = data.data as NewVolumeMessage;
+        const newVolume = data.data as NewVolumeMessage;
         setSessionState((prev) =>
           prev.map((session) => {
-            if (session.session.processId === newvolume.processId) {
-              session.session.volume = newvolume.volume;
-              session.session.isMuted = newvolume.isMuted;
+            if (session.session.processId === newVolume.processId) {
+              session.session.volume = newVolume.volume;
+              session.session.isMuted = newVolume.isMuted;
             }
             return session;
           })
         );
         if (
-          newvolume.processId ===
+          newVolume.processId ===
           sessionStateRef.current[selectedIndexRef.current].session.processId
         ) {
-          setVolume(newvolume.volume);
+          setVolume(newVolume.volume);
         }
         break;
     }
@@ -124,11 +123,11 @@ const VolumeMixer: React.VFC = () => {
       volume: value as number,
       isMuted: sessionState[selectedIndex].session.isMuted,
     };
-    const requset: WebsocketMessage = {
+    const request: WebsocketMessage = {
       eventName: "setVolume",
       data: data,
     };
-    connection.send(JSON.stringify(requset));
+    connection.send(JSON.stringify(request));
   };
   const handleChangeCommitted = (
     event: React.SyntheticEvent | Event,
@@ -152,13 +151,13 @@ const VolumeMixer: React.VFC = () => {
         volume: sessionState[selectedIndex].session.volume,
         isMuted: !sessionState[selectedIndex].session.isMuted,
       };
-      const requset: WebsocketMessage = {
+      const request: WebsocketMessage = {
         eventName: "setVolume",
         data: data,
       };
 
       const connection = ws.getInstance().connection;
-      connection.send(JSON.stringify(requset));
+      connection.send(JSON.stringify(request));
     }
     setSelectedIndex(index);
   };
