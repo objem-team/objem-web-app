@@ -4,10 +4,10 @@ import { WebsocketMessage } from "../src/type/WebsocketMessage";
 import { NewVolumeMessage } from "../src/type/WebsocketMessage/NewVolumeMessage";
 import { SetVolumeMessage } from "../src/type/WebsocketMessage/SetVolumeMessage";
 import { websocket as ws } from "../src/websocket";
-import BorderedAvater from "./BorderedAvater";
+import VolumeMixerBtn from "./VolumeMixerBtn";
 import VolumeDown from "@mui/icons-material/VolumeDown";
 import VolumeUp from "@mui/icons-material/VolumeUp";
-import { Button, IconButton, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Slider from "@mui/material/Slider";
 import Stack from "@mui/material/Stack";
@@ -164,31 +164,26 @@ const VolumeMixer: React.VFC = () => {
   };
 
   return (
-    <Paper>
-      <Button
-        onClick={() => {
-          console.log(sessionState);
-        }}
-      >
-        123
-      </Button>
+    <Paper
+      elevation={3}
+      sx={{
+        margin: "10px",
+      }}
+    >
       <Grid container spacing={2}>
         {sessionState.map((state, index) => (
-          <Grid item xs={3} sm={3} md={2} lg={2} key={state.session.processId}>
-            <IconButton
+          <Grid item xs={4} sm={3} md={2} lg={1} key={state.session.processId}>
+            <VolumeMixerBtn
               onClick={() => {
                 onClick(index);
               }}
-            >
-              <BorderedAvater
-                isMuted={state.session.isMuted}
-                isActive={state.isActive}
-                borderColor={btnStyle}
-                alt={state.session.name}
-                src={state.session.icon}
-                size={80}
-              />
-            </IconButton>
+              isMuted={state.session.isMuted}
+              isActive={state.isActive}
+              borderColor={btnStyle}
+              alt={state.session.name}
+              src={state.session.icon}
+              size={80}
+            />
           </Grid>
         ))}
       </Grid>
