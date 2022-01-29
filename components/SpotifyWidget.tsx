@@ -1,6 +1,10 @@
+import aspida, { HTTPError } from "@aspida/fetch";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
+import api from "../api/$api";
+import { fetchConfig } from "../src/spotifyFetchConfig";
 import LoopIcon from "@mui/icons-material/Loop";
+import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ShuffleIcon from "@mui/icons-material/Shuffle";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
@@ -15,8 +19,42 @@ import {
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-
 const SpotifyWidget: React.VFC = () => {
+  const client = api(aspida(fetch, fetchConfig));
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const pause = async () => {
+    await client.pause
+      .$put()
+      .then(() => setIsPlaying(false))
+      .catch((e) => {
+        if (e instanceof HTTPError && e.response.status == 403)
+          setIsPlaying(false);
+      });
+  };
+  const resume = async () => {
+    await client.resume
+      .$put()
+      .then(() => setIsPlaying(true))
+      .catch((e) => {
+        if (e instanceof HTTPError && e.response.status == 403)
+          setIsPlaying(true);
+      });
+  };
+  const next = async () => {
+    await client.next.$put();
+  };
+  const previous = async () => {
+    await client.previous.$put();
+  };
+  const pauseResume = async () => {
+    if (isPlaying) {
+      await pause();
+    } else {
+      await resume();
+    }
+  };
+
   return (
     <Paper
       elevation={3}
@@ -95,13 +133,13 @@ const SpotifyWidget: React.VFC = () => {
             <IconButton aria-label="previous">
               <ShuffleIcon />
             </IconButton>
-            <IconButton aria-label="previous">
+            <IconButton aria-label="previous" onClick={previous}>
               <SkipPreviousIcon />
             </IconButton>
-            <IconButton aria-label="play/pause">
-              <PlayArrowIcon sx={{ height: 38, width: 38 }} />
+            <IconButton aria-label="play/pause" onClick={pauseResume}>
+              {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
             </IconButton>
-            <IconButton aria-label="next">
+            <IconButton aria-label="next" onClick={next}>
               <SkipNextIcon />
             </IconButton>
             <IconButton aria-label="loop">
