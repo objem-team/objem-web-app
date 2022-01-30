@@ -8,7 +8,7 @@ export type Show = {
   external_urls: ExternalUrls;
   href: string;
   id: string;
-  images?: ImagesEntity[] | null;
+  images: ImagesEntity[];
   is_externally_hosted: boolean;
   languages?: string[] | null;
   media_type: string;

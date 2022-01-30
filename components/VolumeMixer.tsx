@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { VolumeSession } from "../src/type/VolumeSession";
-import { WebsocketMessage } from "../src/type/WebsocketMessage";
-import { NewVolumeMessage } from "../src/type/WebsocketMessage/NewVolumeMessage";
-import { SetVolumeMessage } from "../src/type/WebsocketMessage/SetVolumeMessage";
+import { VolumeSession } from "../src/types/VolumeSession";
+import { WebsocketMessage } from "../src/types/WebsocketMessage";
+import { NewVolumeMessage } from "../src/types/WebsocketMessage/NewVolumeMessage";
+import { SetVolumeMessage } from "../src/types/WebsocketMessage/SetVolumeMessage";
 import { websocket as ws } from "../src/websocket";
 import VolumeMixerBtn from "./VolumeMixerBtn";
 import VolumeDown from "@mui/icons-material/VolumeDown";

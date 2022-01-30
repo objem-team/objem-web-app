@@ -1,8 +1,12 @@
 import aspida, { HTTPError } from "@aspida/fetch";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import api from "../api/$api";
+import { nextState } from "../src/RepeatStatesUtil";
+import { getColor, StolenColor } from "../src/color";
 import { fetchConfig } from "../src/spotifyFetchConfig";
+import { SpotifyWedgetItem } from "../src/types/SpotifyWedgetItem";
+import { RepeatState } from "../src/types/spotify/RepeatState";
 import LoopIcon from "@mui/icons-material/Loop";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -10,6 +14,7 @@ import ShuffleIcon from "@mui/icons-material/Shuffle";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import {
+  Badge,
   Card,
   CardContent,
   CardMedia,
@@ -22,6 +27,53 @@ import Box from "@mui/material/Box";
 const SpotifyWidget: React.VFC = () => {
   const client = api(aspida(fetch, fetchConfig));
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shuffleState, setShuffleState] = useState(false);
+  const [repeatState, setRepeatState] = useState<RepeatState>("off");
+  const [CardColor, setCardColor] = useState<StolenColor>({
+    backGroundColor: "white",
+    contentColor: "black",
+  });
+  const [item, setItem] = useState<SpotifyWedgetItem>();
+
+  const fetchPlayingcontext = async () => {
+    let newItem: SpotifyWedgetItem;
+    const context = await client.$get();
+    setIsPlaying(context.is_playing);
+    setShuffleState(context.shuffle_state);
+    setRepeatState(context.repeat_state);
+    const item = context.item;
+    if (!item) return;
+    console.log(item);
+    item.kind = `full${item.hasOwnProperty("show") ? "episode" : "track"}`;
+    switch (item.kind) {
+      case "fulltrack":
+        newItem = {
+          title: item.name,
+          artists: item.artists.map((artist) => artist.name).join(", "),
+          image_url: item.album.images[0].url,
+        };
+        break;
+      case "fullepisode":
+        newItem = {
+          title: item.name,
+          artists: item.show.publisher,
+          image_url: item.show.images[0].url,
+        };
+        break;
+      default:
+        return;
+    }
+    setItem(newItem);
+  };
+
+  useEffect(() => {
+    fetchPlayingcontext().then(/*ignore*/);
+  }, []);
+
+  useEffect(() => {
+    if (!item) return;
+    getColor(item.image_url).then(setCardColor);
+  }, [item]);
 
   const pause = async () => {
     await client.pause
@@ -43,9 +95,11 @@ const SpotifyWidget: React.VFC = () => {
   };
   const next = async () => {
     await client.next.$put();
+    fetchPlayingcontext();
   };
   const previous = async () => {
     await client.previous.$put();
+    fetchPlayingcontext();
   };
   const pauseResume = async () => {
     if (isPlaying) {
@@ -54,15 +108,29 @@ const SpotifyWidget: React.VFC = () => {
       await resume();
     }
   };
+  const fetchRepeat = async () => {
+    const newState = await client.repeat.$put({
+      body: { repeatState: nextState(repeatState) },
+    });
+    setRepeatState(newState);
+  };
+  const fetchShaffle = async () => {
+    const state = !shuffleState;
+    const newState = await client.shuffle.$put({
+      body: { shaffleState: state },
+    });
+    setShuffleState(newState);
+  };
 
   return (
     <Paper
       elevation={3}
       sx={{
+        backgroundColor: "#FF00FF",
         margin: "10px",
       }}
     >
-      <Card>
+      <Card sx={{ backgroundColor: CardColor.backGroundColor }}>
         <Grid
           container
           direction="row"
@@ -85,7 +153,10 @@ const SpotifyWidget: React.VFC = () => {
               alt="logo"
             />
           </Grid>
-          <Grid item sx={{ paddingLeft: "20px" }}>
+          <Grid
+            item
+            sx={{ paddingLeft: "20px", color: CardColor.contentColor }}
+          >
             Spotify
           </Grid>
         </Grid>
@@ -95,18 +166,19 @@ const SpotifyWidget: React.VFC = () => {
               component="div"
               variant="h6"
               sx={{
+                color: CardColor.contentColor,
                 whiteSpace: "unset",
                 wordBreak: "break-word",
               }}
             >
-              夜に駆ける
+              {item ? item.title : "noContext"}
             </Typography>
             <Typography
               variant="subtitle1"
-              color="text.secondary"
+              color={CardColor.contentColor}
               component="div"
             >
-              YOASOBI
+              {item ? item.artists : "noContext"}
             </Typography>
           </CardContent>
           <CardMedia
@@ -118,7 +190,7 @@ const SpotifyWidget: React.VFC = () => {
               padding: "8px",
               objectFit: "scale-down",
             }}
-            image="https://i.scdn.co/image/ab67616d0000b273c5716278abba6a103ad13aa7"
+            image={item ? item.image_url : "noContext"}
             alt="Live from space album cover"
           />
         </Box>
@@ -130,20 +202,49 @@ const SpotifyWidget: React.VFC = () => {
               justifyContent: "space-around",
             }}
           >
-            <IconButton aria-label="previous">
-              <ShuffleIcon />
+            <IconButton
+              aria-label="previous"
+              sx={{ color: CardColor.contentColor }}
+              onClick={fetchShaffle}
+            >
+              <Badge color="secondary" invisible={!shuffleState} variant="dot">
+                <ShuffleIcon />
+              </Badge>
             </IconButton>
-            <IconButton aria-label="previous" onClick={previous}>
+            <IconButton
+              aria-label="previous"
+              sx={{ color: CardColor.contentColor }}
+              onClick={previous}
+            >
               <SkipPreviousIcon />
             </IconButton>
-            <IconButton aria-label="play/pause" onClick={pauseResume}>
+            <IconButton
+              aria-label="play/pause"
+              sx={{ color: CardColor.contentColor }}
+              onClick={pauseResume}
+            >
               {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
             </IconButton>
-            <IconButton aria-label="next" onClick={next}>
+            <IconButton
+              aria-label="next"
+              sx={{ color: CardColor.contentColor }}
+              onClick={next}
+            >
               <SkipNextIcon />
             </IconButton>
-            <IconButton aria-label="loop">
-              <LoopIcon />
+            <IconButton
+              aria-label="rpeat"
+              sx={{ color: CardColor.contentColor }}
+              onClick={fetchRepeat}
+            >
+              <Badge
+                color="secondary"
+                invisible={repeatState == "off"}
+                variant={repeatState == "context" ? "dot" : "standard"}
+                badgeContent={1}
+              >
+                <LoopIcon />
+              </Badge>
             </IconButton>
           </Box>
         </Box>

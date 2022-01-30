@@ -5,7 +5,7 @@ import { ExternalIds, ExternalUrls } from "./spotify";
 export type FullTrack = {
   kind: "fulltrack";
   album: Album;
-  artists?: ArtistsEntity[] | null;
+  artists: ArtistsEntity[];
   available_markets?: string[] | null;
   disc_number: number;
   duration_ms: number;
