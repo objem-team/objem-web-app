@@ -1,75 +1,86 @@
 /* eslint-disable */
 // prettier-ignore
-import { AspidaClient } from 'aspida'
+import { AspidaClient, dataToURLString } from 'aspida'
 // prettier-ignore
 import { Methods as Methods0 } from '.'
 // prettier-ignore
-import { Methods as Methods1 } from './next'
+import { Methods as Methods1 } from './callback'
 // prettier-ignore
-import { Methods as Methods2 } from './pause'
+import { Methods as Methods2 } from './next'
 // prettier-ignore
-import { Methods as Methods3 } from './previous'
+import { Methods as Methods3 } from './pause'
 // prettier-ignore
-import { Methods as Methods4 } from './repeat'
+import { Methods as Methods4 } from './previous'
 // prettier-ignore
-import { Methods as Methods5 } from './resume'
+import { Methods as Methods5 } from './repeat'
 // prettier-ignore
-import { Methods as Methods6 } from './shuffle'
+import { Methods as Methods6 } from './resume'
+// prettier-ignore
+import { Methods as Methods7 } from './shuffle'
 
 // prettier-ignore
 const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
   const prefix = (baseURL === undefined ? '' : baseURL).replace(/\/$/, '')
-  const PATH0 = '/next'
-  const PATH1 = '/pause'
-  const PATH2 = '/previous'
-  const PATH3 = '/repeat'
-  const PATH4 = '/resume'
-  const PATH5 = '/shuffle'
+  const PATH0 = '/callback'
+  const PATH1 = '/next'
+  const PATH2 = '/pause'
+  const PATH3 = '/previous'
+  const PATH4 = '/repeat'
+  const PATH5 = '/resume'
+  const PATH6 = '/shuffle'
   const GET = 'GET'
   const PUT = 'PUT'
 
   return {
-    next: {
-      put: (option?: { config?: T }) =>
-        fetch<Methods1['put']['resBody']>(prefix, PATH0, PUT, option).json(),
-      $put: (option?: { config?: T }) =>
-        fetch<Methods1['put']['resBody']>(prefix, PATH0, PUT, option).json().then(r => r.body),
-      $path: () => `${prefix}${PATH0}`
+    callback: {
+      get: (option: { query: Methods1['get']['query'], config?: T }) =>
+        fetch(prefix, PATH0, GET, option).send(),
+      $get: (option: { query: Methods1['get']['query'], config?: T }) =>
+        fetch(prefix, PATH0, GET, option).send().then(r => r.body),
+      $path: (option?: { method?: 'get'; query: Methods1['get']['query'] }) =>
+        `${prefix}${PATH0}${option && option.query ? `?${dataToURLString(option.query)}` : ''}`
     },
-    pause: {
+    next: {
       put: (option?: { config?: T }) =>
         fetch<Methods2['put']['resBody']>(prefix, PATH1, PUT, option).json(),
       $put: (option?: { config?: T }) =>
         fetch<Methods2['put']['resBody']>(prefix, PATH1, PUT, option).json().then(r => r.body),
       $path: () => `${prefix}${PATH1}`
     },
-    previous: {
+    pause: {
       put: (option?: { config?: T }) =>
         fetch<Methods3['put']['resBody']>(prefix, PATH2, PUT, option).json(),
       $put: (option?: { config?: T }) =>
         fetch<Methods3['put']['resBody']>(prefix, PATH2, PUT, option).json().then(r => r.body),
       $path: () => `${prefix}${PATH2}`
     },
-    repeat: {
-      put: (option: { body: Methods4['put']['reqBody'], config?: T }) =>
-        fetch<Methods4['put']['resBody']>(prefix, PATH3, PUT, option, 'FormData').json(),
-      $put: (option: { body: Methods4['put']['reqBody'], config?: T }) =>
-        fetch<Methods4['put']['resBody']>(prefix, PATH3, PUT, option, 'FormData').json().then(r => r.body),
+    previous: {
+      put: (option?: { config?: T }) =>
+        fetch<Methods4['put']['resBody']>(prefix, PATH3, PUT, option).json(),
+      $put: (option?: { config?: T }) =>
+        fetch<Methods4['put']['resBody']>(prefix, PATH3, PUT, option).json().then(r => r.body),
       $path: () => `${prefix}${PATH3}`
+    },
+    repeat: {
+      put: (option: { body: Methods5['put']['reqBody'], config?: T }) =>
+        fetch<Methods5['put']['resBody']>(prefix, PATH4, PUT, option, 'FormData').json(),
+      $put: (option: { body: Methods5['put']['reqBody'], config?: T }) =>
+        fetch<Methods5['put']['resBody']>(prefix, PATH4, PUT, option, 'FormData').json().then(r => r.body),
+      $path: () => `${prefix}${PATH4}`
     },
     resume: {
       put: (option?: { config?: T }) =>
-        fetch<Methods5['put']['resBody']>(prefix, PATH4, PUT, option).json(),
+        fetch<Methods6['put']['resBody']>(prefix, PATH5, PUT, option).json(),
       $put: (option?: { config?: T }) =>
-        fetch<Methods5['put']['resBody']>(prefix, PATH4, PUT, option).json().then(r => r.body),
-      $path: () => `${prefix}${PATH4}`
+        fetch<Methods6['put']['resBody']>(prefix, PATH5, PUT, option).json().then(r => r.body),
+      $path: () => `${prefix}${PATH5}`
     },
     shuffle: {
-      put: (option: { body: Methods6['put']['reqBody'], config?: T }) =>
-        fetch<Methods6['put']['resBody']>(prefix, PATH5, PUT, option, 'FormData').json(),
-      $put: (option: { body: Methods6['put']['reqBody'], config?: T }) =>
-        fetch<Methods6['put']['resBody']>(prefix, PATH5, PUT, option, 'FormData').json().then(r => r.body),
-      $path: () => `${prefix}${PATH5}`
+      put: (option: { body: Methods7['put']['reqBody'], config?: T }) =>
+        fetch<Methods7['put']['resBody']>(prefix, PATH6, PUT, option, 'FormData').json(),
+      $put: (option: { body: Methods7['put']['reqBody'], config?: T }) =>
+        fetch<Methods7['put']['resBody']>(prefix, PATH6, PUT, option, 'FormData').json().then(r => r.body),
+      $path: () => `${prefix}${PATH6}`
     },
     get: (option?: { config?: T }) =>
       fetch<Methods0['get']['resBody']>(prefix, '', GET, option).json(),
