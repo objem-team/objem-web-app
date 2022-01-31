@@ -1,11 +1,13 @@
 import aspida, { HTTPError } from "@aspida/fetch";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+
 import api from "../api/$api";
 import { nextState } from "../src/RepeatStatesUtil";
 import { getColor, StolenColor } from "../src/color";
 import { fetchConfig } from "../src/spotifyFetchConfig";
 import { SpotifyWedgetItem } from "../src/types/SpotifyWedgetItem";
+import { CurrentPlaybackContext } from "../src/types/spotify/CurrentPlaybackContext";
 import { RepeatState } from "../src/types/spotify/RepeatState";
 import LoopIcon from "@mui/icons-material/Loop";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -24,6 +26,7 @@ import {
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
+import Skeleton from "@mui/material/Skeleton";
 const SpotifyWidget: React.VFC = () => {
   const client = api(aspida(fetch, fetchConfig));
   const [isPlaying, setIsPlaying] = useState(false);
@@ -36,8 +39,19 @@ const SpotifyWidget: React.VFC = () => {
   const [item, setItem] = useState<SpotifyWedgetItem>();
 
   const fetchPlayingcontext = async () => {
+    const context = await client
+      .$get()
+      .then(setPlayingContext)
+      .catch((e: HTTPError) => {
+        if (e.response.status === 401) {
+          //ログインしていないときの処理
+        } else {
+          console.log(e);
+        }
+      });
+  };
+  const setPlayingContext = (context: CurrentPlaybackContext) => {
     let newItem: SpotifyWedgetItem;
-    const context = await client.$get();
     setIsPlaying(context.is_playing);
     setShuffleState(context.shuffle_state);
     setRepeatState(context.repeat_state);
@@ -126,7 +140,6 @@ const SpotifyWidget: React.VFC = () => {
     <Paper
       elevation={3}
       sx={{
-        backgroundColor: "#FF00FF",
         margin: "10px",
       }}
     >
@@ -160,6 +173,7 @@ const SpotifyWidget: React.VFC = () => {
             Spotify
           </Grid>
         </Grid>
+
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CardContent>
             <Typography
@@ -171,28 +185,36 @@ const SpotifyWidget: React.VFC = () => {
                 wordBreak: "break-word",
               }}
             >
-              {item ? item.title : "noContext"}
+              {item ? item.title : <Skeleton variant="text" width={"10vw"} />}
             </Typography>
             <Typography
               variant="subtitle1"
               color={CardColor.contentColor}
               component="div"
             >
-              {item ? item.artists : "noContext"}
+              {item ? item.artists : <Skeleton />}
             </Typography>
           </CardContent>
-          <CardMedia
-            component="img"
-            sx={{
-              width: "20%",
-              maxHeight: "140px",
-              minWidth: "100px",
-              padding: "8px",
-              objectFit: "scale-down",
-            }}
-            image={item ? item.image_url : "noContext"}
-            alt="Live from space album cover"
-          />
+          {item ? (
+            <CardMedia
+              component="img"
+              sx={{
+                width: "20%",
+                maxHeight: "140px",
+                minWidth: "140px",
+                padding: "8px",
+                objectFit: "scale-down",
+              }}
+              image={item.image_url}
+              alt="Live from space album cover"
+            />
+          ) : (
+            <Skeleton
+              variant="rectangular"
+              width={"120px"}
+              sx={{ marginLeft: "3%", minHeight: "120px", minWidth: "120px" }}
+            />
+          )}
         </Box>
         <Box>
           <Box
