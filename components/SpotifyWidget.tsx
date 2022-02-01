@@ -62,6 +62,7 @@ const SpotifyWidget: React.VFC = () => {
     setIsPlaying(context.is_playing);
     setShuffleState(context.shuffle_state);
     setRepeatState(context.repeat_state);
+    setIsPlaying(context.is_playing);
     const item = context.item;
     if (!item) return;
     console.log(item);
@@ -93,7 +94,7 @@ const SpotifyWidget: React.VFC = () => {
     const interval = setInterval(fetchPlayingcontext, interbal);
     return () => {
       clearInterval(interval);
-    };
+    };  
   }, [isloggedin]);
 
   useEffect(() => {

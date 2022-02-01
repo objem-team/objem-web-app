@@ -1,4 +1,3 @@
-// @ts-ignore
 import ColorThief from "colorthief";
 
 export type StolenColor = {
