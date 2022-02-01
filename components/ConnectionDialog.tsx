@@ -3,6 +3,7 @@ import QrReader from "../components/QrReader";
 import CropFreeIcon from "@mui/icons-material/CropFree";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
+  Box,
   Button,
   FormControl,
   IconButton,
@@ -13,7 +14,6 @@ import {
   Typography,
 } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
-import { Box } from "@mui/system";
 
 type ConnectionDialogProps = {
   callback: (_address: string) => void;
