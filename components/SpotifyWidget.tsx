@@ -2,6 +2,7 @@ import aspida, { HTTPError } from "@aspida/fetch";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
+import { BsSpotify } from "react-icons/bs";
 import api from "../api/$api";
 import { nextState } from "../src/RepeatStatesUtil";
 import { getColor, StolenColor } from "../src/color";
@@ -15,6 +16,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ShuffleIcon from "@mui/icons-material/Shuffle";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
+
 import {
   Badge,
   Card,
@@ -26,9 +28,12 @@ import {
   Typography,
 } from "@mui/material";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
+
 const SpotifyWidget: React.VFC = () => {
   const client = api(aspida(fetch, fetchConfig));
+  const [isloggedin, setIsloggedin] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [shuffleState, setShuffleState] = useState(false);
   const [repeatState, setRepeatState] = useState<RepeatState>("off");
@@ -42,15 +47,17 @@ const SpotifyWidget: React.VFC = () => {
     const context = await client
       .$get()
       .then(setPlayingContext)
-      .catch((e: HTTPError) => {
-        if (e.response.status === 401) {
-          //ログインしていないときの処理
-        } else {
-          console.log(e);
+      .catch((e) => {
+        if (e instanceof HTTPError) {
+          if (e.response.status === 401) {
+            setIsloggedin(false);
+          }
         }
+        console.log(e instanceof HTTPError);
       });
   };
   const setPlayingContext = (context: CurrentPlaybackContext) => {
+    setIsloggedin(true);
     let newItem: SpotifyWedgetItem;
     setIsPlaying(context.is_playing);
     setShuffleState(context.shuffle_state);
@@ -82,7 +89,12 @@ const SpotifyWidget: React.VFC = () => {
 
   useEffect(() => {
     fetchPlayingcontext().then(/*ignore*/);
-  }, []);
+    const interbal = isloggedin ? 2 * 1000 * 60 : 5 * 1000;
+    const interval = setInterval(fetchPlayingcontext, interbal);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isloggedin]);
 
   useEffect(() => {
     if (!item) return;
@@ -175,45 +187,73 @@ const SpotifyWidget: React.VFC = () => {
         </Grid>
 
         <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <CardContent>
-            <Typography
-              component="div"
-              variant="h6"
-              sx={{
-                color: CardColor.contentColor,
-                whiteSpace: "unset",
-                wordBreak: "break-word",
-              }}
-            >
-              {item ? item.title : <Skeleton variant="text" width={"10vw"} />}
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              color={CardColor.contentColor}
-              component="div"
-            >
-              {item ? item.artists : <Skeleton />}
-            </Typography>
-          </CardContent>
-          {item ? (
-            <CardMedia
-              component="img"
-              sx={{
-                width: "20%",
-                maxHeight: "140px",
-                minWidth: "140px",
-                padding: "8px",
-                objectFit: "scale-down",
-              }}
-              image={item.image_url}
-              alt="Live from space album cover"
-            />
+          {isloggedin ? (
+            <>
+              <CardContent>
+                <Typography
+                  component="div"
+                  variant="h6"
+                  sx={{
+                    color: CardColor.contentColor,
+                    whiteSpace: "unset",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {item ? (
+                    item.title
+                  ) : (
+                    <Skeleton variant="text" width={"10vw"} />
+                  )}
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  color={CardColor.contentColor}
+                  component="div"
+                >
+                  {item ? item.artists : <Skeleton />}
+                </Typography>
+              </CardContent>
+              <div>
+                {item ? (
+                  <CardMedia
+                    component="img"
+                    sx={{
+                      width: "20%",
+                      maxHeight: "140px",
+                      minWidth: "140px",
+                      padding: "8px",
+                      objectFit: "scale-down",
+                    }}
+                    image={item.image_url}
+                    alt="album cover"
+                  />
+                ) : (
+                  <Skeleton
+                    variant="rectangular"
+                    width={"120px"}
+                    sx={{
+                      marginLeft: "3%",
+                      minHeight: "120px",
+                      minWidth: "120px",
+                    }}
+                  />
+                )}
+              </div>
+            </>
           ) : (
-            <Skeleton
-              variant="rectangular"
-              width={"120px"}
-              sx={{ marginLeft: "3%", minHeight: "120px", minWidth: "120px" }}
-            />
+            <CardContent>
+              <Button
+                variant="contained"
+                size="large"
+                target="_blank"
+                href={process.env.NEXT_PUBLIC_WORKER_URL + "login"}
+                endIcon={<BsSpotify />}
+                sx={{ backgroundColor: "#1DB954", color: "white" }}
+              >
+                {" "}
+                Login with SpotifyPremium
+              </Button>
+            </CardContent>
           )}
         </Box>
         <Box>

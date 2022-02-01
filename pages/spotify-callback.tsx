@@ -69,7 +69,11 @@ const spotifyCallback = () => {
           <Typography sx={{ padding: 3 }}>{status}</Typography>
           {sideElement}
         </Paper>
-        <Button variant="contained" sx={{ margin: 2 }}>
+        <Button
+          variant="contained"
+          sx={{ margin: 2 }}
+          onClick={() => window.close()}
+        >
           閉じる
         </Button>
       </Container>
