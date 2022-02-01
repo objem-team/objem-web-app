@@ -38,7 +38,6 @@ const ShortcutWidget: React.VFC = () => {
     connection.send(JSON.stringify(request));
   };
 
-
   const onMassage = (event: MessageEvent) => {
     const data = JSON.parse(event.data) as WebsocketMessage;
     switch (data.eventName) {

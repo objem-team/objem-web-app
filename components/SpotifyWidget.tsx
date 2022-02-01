@@ -94,7 +94,7 @@ const SpotifyWidget: React.VFC = () => {
     const interval = setInterval(fetchPlayingcontext, interbal);
     return () => {
       clearInterval(interval);
-    };  
+    };
   }, [isloggedin]);
 
   useEffect(() => {
