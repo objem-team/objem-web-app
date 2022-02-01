@@ -18,7 +18,6 @@ const ShortcutWidget: React.VFC = () => {
       connection.removeEventListener("message", onMassage);
       connection.removeEventListener("open", requestShortcuts);
     };
-    setShortcuts(["1", "2", "3"]);
   }, []);
   const requestShortcuts = () => {
     const connection = ws.getInstance().connection;
@@ -42,8 +41,7 @@ const ShortcutWidget: React.VFC = () => {
     const data = JSON.parse(event.data) as WebsocketMessage;
     switch (data.eventName) {
       case "shortcuts":
-        const shortcuts = data.data as string[];
-        setShortcuts(shortcuts);
+        setShortcuts(JSON.parse(data.data));
         break;
     }
   };
@@ -55,17 +53,18 @@ const ShortcutWidget: React.VFC = () => {
       }}
     >
       <Grid container spacing={2}>
-        {shortcuts.map((state) => (
+        {shortcuts.map((state, index) => (
           <Grid item xs={4} sm={3} md={2} lg={1} key={state}>
             <ShortcutButton
               onClick={() => {
-                console.log("click");
+                send(state);
               }}
               borderColor={"aqua"}
-              src="jkj"
-              alt={state}
+              alt={index.toString()}
               size={80}
-            />
+            >
+              {index}
+            </ShortcutButton>
           </Grid>
         ))}
       </Grid>
