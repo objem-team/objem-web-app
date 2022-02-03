@@ -1,11 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { WebsocketMessage } from "../src/types/WebsocketMessage";
 import { websocket as ws } from "../src/websocket";
 import ShortcutButton from "./ShortcutButton";
 import { Grid, Paper } from "@mui/material";
 
+type ShortcutItem = {
+  guid: string;
+  icon: string;
+};
+
 const ShortcutWidget: React.VFC = () => {
-  const [shortcuts, setShortcuts] = useState<string[]>([]);
+  const [shortcuts, setShortcuts] = useState<ShortcutItem[]>([]);
+  const shortcutsRef = useRef<ShortcutItem[]>([]);
+  shortcutsRef.current = shortcuts;
   useEffect(() => {
     const connection = ws.getInstance().connection;
     connection.addEventListener("message", onMassage);
@@ -29,6 +36,7 @@ const ShortcutWidget: React.VFC = () => {
   };
 
   const send = (guid: string) => {
+    console.log(shortcuts);
     const request: WebsocketMessage = {
       eventName: "doshortcut",
       data: guid,
@@ -41,8 +49,34 @@ const ShortcutWidget: React.VFC = () => {
     const data = JSON.parse(event.data) as WebsocketMessage;
     switch (data.eventName) {
       case "shortcuts":
-        setShortcuts(JSON.parse(data.data));
+        const guids: string[] = JSON.parse(data.data);
+        const newShortcuts: ShortcutItem[] = guids.map((guid) => {
+          return {
+            guid,
+            icon: "",
+          };
+        });
+        setShortcuts(newShortcuts);
+        guids.forEach((guid) => {
+          const request: WebsocketMessage = {
+            eventName: "requestShortcutIcon",
+            data: guid,
+          };
+          const connection = ws.getInstance().connection;
+          connection.send(JSON.stringify(request));
+        });
         break;
+      case "shortcutIcon":
+        console.log(data.data);
+        const shortcutIcon: ShortcutItem = data.data as ShortcutItem;
+        console.log(shortcutsRef.current);
+        const newState = shortcutsRef.current.map((shortcut) => {
+          if (shortcut.guid === shortcutIcon.guid) {
+            return shortcutIcon;
+          }
+          return shortcut;
+        });
+        setShortcuts(newState);
     }
   };
   return (
@@ -54,13 +88,14 @@ const ShortcutWidget: React.VFC = () => {
     >
       <Grid container spacing={2}>
         {shortcuts.map((state, index) => (
-          <Grid item xs={4} sm={3} md={2} lg={1} key={state}>
+          <Grid item xs={4} sm={3} md={2} lg={1} key={state.guid}>
             <ShortcutButton
               onClick={() => {
-                send(state);
+                send(state.guid);
               }}
               borderColor={"aqua"}
               alt={index.toString()}
+              src={state.icon}
               size={80}
             >
               {index}
