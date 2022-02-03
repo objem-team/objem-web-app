@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   const [alartType, setArartType] = React.useState<AlertColor>("success");
   const [alartOpen, setAlartOpen] = React.useState(false);
   const [alartMessage, setAlartMessage] = React.useState("");
-  const handleClose = (reason: string) => {
+  const handleClose = (_event: object, reason: string) => {
     if (reason === "backdropClick") return;
     setOpen(false);
   };
@@ -38,20 +38,27 @@ const Home: NextPage = () => {
     const reconectTimes = 5;
     let flag = false;
     for (let i = 0; i < reconectTimes; ++i) {
-      if (flag) break;
       await sleep(1000 * 2 ** i);
       console.log(
         "Attempting to connect " + (reconectTimes - i) + " times remaining"
       );
-      connect().then((connection) => {
+      try {
+        const connection = await connect();
+        console.log(connection);
         console.log("connected");
         setConnecting(false);
         setKey(Math.random());
         setOpen(false);
-        flag = true;
         const socket = connection as WebSocket;
-        socket.onopen = onError;
-      });
+        socket.onclose = () => {
+          console.log("disconnected");
+          tryConnect();
+        };
+        flag = true;
+        break;
+      } catch (e) {
+        continue;
+      }
     }
     if (flag) return;
     setConnecting(false);
@@ -76,7 +83,7 @@ const Home: NextPage = () => {
 
   // eslint-disable-next-line unused-imports/no-unused-vars
   const onError = (_e: Event) => {
-    console.log("eeeee");
+    console.log("error");
     tryConnect();
   };
 
