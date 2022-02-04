@@ -116,18 +116,20 @@ const VolumeMixer: React.VFC = () => {
   const handleChange = (event: Event, value: number | number[]) => {
     setIsGrabbed(true);
     setVolume(value as number);
-
-    const connection = ws.getInstance().connection;
-    const data: SetVolumeMessage = {
-      processId: sessionState[selectedIndex].session.processId,
-      volume: value as number,
-      isMuted: sessionState[selectedIndex].session.isMuted,
-    };
-    const request: WebsocketMessage = {
-      eventName: "setVolume",
-      data: data,
-    };
-    connection.send(JSON.stringify(request));
+    return new Promise<void>((resolve) => {
+      const connection = ws.getInstance().connection;
+      const data: SetVolumeMessage = {
+        processId: sessionState[selectedIndex].session.processId,
+        volume: value as number,
+        isMuted: sessionState[selectedIndex].session.isMuted,
+      };
+      const request: WebsocketMessage = {
+        eventName: "setVolume",
+        data: data,
+      };
+      connection.send(JSON.stringify(request));
+      resolve();
+    });
   };
   const handleChangeCommitted = (
     event: React.SyntheticEvent | Event,
