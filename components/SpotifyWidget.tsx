@@ -153,7 +153,7 @@ const SpotifyWidget: React.VFC = () => {
     <Paper
       elevation={3}
       sx={{
-        margin: "10px",
+        width: "90%",
       }}
     >
       <Card sx={{ backgroundColor: CardColor.backGroundColor }}>

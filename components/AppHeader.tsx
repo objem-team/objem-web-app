@@ -10,7 +10,11 @@ const AppHeader: React.VFC = () => {
     setOpen(open);
   };
   return (
-    <AppBar position="static" color="primary" sx={{ top: "auto" }}>
+    <AppBar
+      position="static"
+      color="primary"
+      sx={{ top: "auto", marginBottom: "15px" }}
+    >
       <AppDrawer open={open} onClose={toggleDrawer(false)} />
       <Toolbar>
         <IconButton
