@@ -12,8 +12,6 @@ const QrReader: React.VFC<QrReaderProps> = (props) => {
   const handleScan = (result: any) => {
     if (!result) return;
     setData(result);
-    let Ip = result;
-    console.log("Ip:" + Ip);
     if (!result.match(/^\d{1,3}(\.\d{1,3}){3}$/)) return;
     props.onRead(result);
   };

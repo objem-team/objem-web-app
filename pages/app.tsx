@@ -13,8 +13,8 @@ const app = () => {
       <Stack spacing={2} sx={{ display: "flex", alignItems: "center" }}>
         <SpotifyWidget />
         <VolumeMixer />
-        <YouTubeCommentWidget videoId="vWmoAjSeYO8" />
-        <TwitchCommentWidget videoId="umitake6102" />
+        <YouTubeCommentWidget />
+        <TwitchCommentWidget />
       </Stack>
     </div>
   );

@@ -65,7 +65,6 @@ const SpotifyWidget: React.VFC = () => {
     setIsPlaying(context.is_playing);
     const item = context.item;
     if (!item) return;
-    console.log(item);
     item.kind = `full${item.hasOwnProperty("show") ? "episode" : "track"}`;
     switch (item.kind) {
       case "fulltrack":

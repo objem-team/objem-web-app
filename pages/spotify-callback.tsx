@@ -42,7 +42,6 @@ const spotifyCallback = () => {
   };
   useEffect(() => {
     if (!router.query.code) return;
-    console.log(router.query.callback);
     login(router.query.code.toString());
   }, [router.query.code]);
   return (
