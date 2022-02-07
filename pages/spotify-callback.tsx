@@ -8,7 +8,6 @@ import { fetchConfig } from "../src/spotifyFetchConfig";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { Container, Paper, Typography } from "@mui/material";
-import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Link from "@mui/material/Link";
 
@@ -42,7 +41,6 @@ const spotifyCallback = () => {
   };
   useEffect(() => {
     if (!router.query.code) return;
-    console.log(router.query.callback);
     login(router.query.code.toString());
   }, [router.query.code]);
   return (
@@ -69,13 +67,9 @@ const spotifyCallback = () => {
           <Typography sx={{ padding: 3 }}>{status}</Typography>
           {sideElement}
         </Paper>
-        <Button
-          variant="contained"
-          sx={{ margin: 2 }}
-          onClick={() => window.close()}
-        >
-          閉じる
-        </Button>
+        <Typography sx={{ padding: 3 }}>
+          {status != "認証中" ? "このウィンドウを閉じることができます。" : ""}
+        </Typography>
       </Container>
     </div>
   );
