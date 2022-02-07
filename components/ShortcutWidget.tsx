@@ -36,7 +36,6 @@ const ShortcutWidget: React.VFC = () => {
   };
 
   const send = (guid: string) => {
-    console.log(shortcuts);
     const request: WebsocketMessage = {
       eventName: "doshortcut",
       data: guid,
@@ -67,9 +66,7 @@ const ShortcutWidget: React.VFC = () => {
         });
         break;
       case "shortcutIcon":
-        console.log(data.data);
         const shortcutIcon: ShortcutItem = data.data as ShortcutItem;
-        console.log(shortcutsRef.current);
         const newState = shortcutsRef.current.map((shortcut) => {
           if (shortcut.guid === shortcutIcon.guid) {
             return shortcutIcon;
@@ -83,7 +80,7 @@ const ShortcutWidget: React.VFC = () => {
     <Paper
       elevation={6}
       sx={{
-        margin: "10px",
+        width: "90%",
       }}
     >
       <Grid container spacing={2}>

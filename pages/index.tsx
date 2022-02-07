@@ -44,7 +44,6 @@ const Home: NextPage = () => {
       );
       try {
         const connection = await connect();
-        console.log(connection);
         console.log("connected");
         setConnecting(false);
         setKey(Math.random());

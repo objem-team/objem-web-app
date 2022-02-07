@@ -168,7 +168,7 @@ const VolumeMixer: React.VFC = () => {
     <Paper
       elevation={3}
       sx={{
-        margin: "10px",
+        width: "90%",
       }}
     >
       <Grid container spacing={2}>
