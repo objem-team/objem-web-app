@@ -26,7 +26,6 @@ const YouTubeCommentWidget: React.VFC = () => {
     switch (data.eventName) {
       case "YouTubeVideoId":
         const videoId = data.data;
-        console.log(videoId);
         if (!videoId) setVisible(false);
         setVideoId(videoId);
         break;
@@ -47,7 +46,8 @@ const YouTubeCommentWidget: React.VFC = () => {
           src={
             "https://www.youtube.com/live_chat?v=" +
             videoId +
-            "&embed_domain=localhost"
+            "&embed_domain=" +
+            process.env.NEXT_PUBLIC_HOST
           }
           height={400}
         />
