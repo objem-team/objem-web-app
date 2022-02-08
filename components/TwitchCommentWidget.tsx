@@ -45,7 +45,10 @@ const TwitchCommentWidget: React.VFC = () => {
       {visible && videoId ? (
         <IframeComponent
           src={
-            "https://www.twitch.tv/embed/" + videoId + "/chat?parent=localhost"
+            "https://www.twitch.tv/embed/" +
+            videoId +
+            "/chat?parent=" +
+            process.env.NEXT_PUBLIC_HOST
           }
           height={400}
         />
